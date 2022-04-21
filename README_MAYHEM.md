@@ -36,7 +36,7 @@ Steps to run:
      yourself from scratch.
   5. In the "Edit Mayhemfile", in the bottom you will see green text on black
      background. Append "@@" to the end of the line, so the full line reads
-     `iob-cache/hardware/simulation/verilator/obj_dir/Viob_cache @@`.  The `@@`
+     `/iob-cache/hardware/simulation/verilator/obj_dir/Viob_cache @@`.  The `@@`
      says the program will take an input file passed as `argv[1]`. 
   6. Click start run
   
@@ -101,7 +101,7 @@ run them:
 ```
 # Run the docker container locally in interactive mode
 docker run -ti $(mayhem docker-registry)/<username>/iob-cache bash
-# /iob-cache/hardware/simulation/verilator/obj_dir/Viob_cache answer-01020304 
+root@2ed81393d4ad:/iob-cache# /iob-cache/hardware/simulation/verilator/obj_dir/Viob_cache answer-01020304 
 ```
 
 ## In-depth Walk Through
@@ -168,8 +168,8 @@ Integer splitting reduces the probability for heuristic-guided search to
 4*2^{-8} = 2^{-10}, which is much less than 2^{-32}. 
 
 We use an [LLVM pass](https://gitlab.com/laf-intel/laf-llvm-pass/) that is
-easily integrated into the existing compile toolchain using the [AFL
-drivers](https://github.com/AFLplusplus/AFLplusplus/blob/stable/instrumentation/README.laf-intel.md)
+easily integrated into the existing compile toolchain using the 
+[AFL drivers](https://github.com/AFLplusplus/AFLplusplus/blob/stable/instrumentation/README.laf-intel.md)
 to add integer splitting.
 
 
@@ -221,7 +221,7 @@ patch -p1 < testbench.patch
 
 ### Step 3: Compile `iob-cache` with integer splitting
 
-We use (AFL)[https://aflplus.plus/] to perform integer splitting and add some
+We use [AFL](https://aflplus.plus/) to perform integer splitting and add some
 helpful instrumentation to the program binary.  Mayhem itself runs a portfolio
 of dynamic analysis, and can work without this instrumentation. However, when
 source is available, we recommend using compile-in instrumentation because it
