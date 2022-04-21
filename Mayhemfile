@@ -1,0 +1,8 @@
+version: '1.16'
+baseimage: $MAYHEM_DOCKER_REGISTRY/dbrumley/iob-cache:latest
+project: dbrumley/iob-cache
+target: iob-cache
+tasks:
+  - name: behavior_testing
+cmds:
+  - cmd: /iob-cache/hardware/simulation/verilator/obj_dir/Viob_cache @@

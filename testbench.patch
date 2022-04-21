@@ -1,0 +1,146 @@
+--- a/hardware/simulation/verilator/testbench.cpp
++++ b/hardware/simulation/verilator/testbench.cpp
+@@ -1,56 +1,107 @@
++#include <stdio.h>
++#include <stdint.h>
++#include <sys/stat.h>
+ #include <verilated.h>
+ #include <verilated_vcd_c.h>
+ #include <iostream>
+ 
+ #include "obj_dir/Viob_cache.h"
+ 
++#define BUF_SIZE 1024
++#define TEST_SIZE 8
++
+ int main(int argc, char** argv) {
+-    std::cout << std::endl << "Iob_cache simulation start" << std::endl;
++  int rc, i, j;                // tmp vars
++  unsigned char buf[BUF_SIZE]; // Test commands buffer
++  FILE *fp;                    // input test file pointer
++  struct stat stat_buf;        // for checking input file length
++  int num_test_cmds = 0;       // number test commands
++  unsigned short taddr = 0;    // test address
++  unsigned char twstrb = 0, tvalid = 0; // test info
++  
++  
++  if(argc != 2) {
++    std::cout << std::endl << "Usage: " << argv[0] << " <file>" << std::endl;
++    exit(0);
++  }
++  rc = stat(argv[1], &stat_buf);
++
++  // Check that we have at least one command (8 bytes)
++  if(stat_buf.st_size < TEST_SIZE) exit(-1); 
++  if(stat_buf.st_size % TEST_SIZE != 0) exit(-1);
++  if(stat_buf.st_size >= (BUF_SIZE-1)) exit(-1);
++
++  if( (fp = fopen(argv[1], "rb")) == NULL) {
++    std::cout << std::endl << "Cannot open " << argv[1] << std::endl;
++    exit(1);
++  }
++  
++  // Read in the test commands contents
++  if(fread(buf, sizeof(unsigned char), stat_buf.st_size, fp) != stat_buf.st_size) exit(-1);
++  fclose(fp);
+ 
++  num_test_cmds = stat_buf.st_size / TEST_SIZE;
++
++  // Early exit if the cmds are not in the valid range.
++  for (j=0; j < num_test_cmds; j++) {
++    int index=TEST_SIZE;
++    memcpy (&taddr, &buf[index], 2);
++    if (taddr > 8191) exit(-1); // taddr should be in 0...8191
++    memcpy (&twstrb, &buf[index+6], 1);
++    if (twstrb > 15) exit(-1);  // twstrb should be 0..15
++    memcpy (&tvalid, &buf[index+7], 1);
++    if (tvalid > 1) exit(-1);   // tvalid should be 0 or 1
++  }
++    
++  
+     // Init verilator context and enable tracing
+     Verilated::commandArgs(argc, argv);
+     Verilated::traceEverOn(true);
+ 
+-    Viob_cache* tb = new Viob_cache; // Create UUT
+-    VerilatedVcdC* tfp = new VerilatedVcdC; // Create tracing object
+-
+-    tb->trace(tfp,99); // Trace 99 levels of hierarchy
+-    tfp->open("vcd.vcd"); // Open tracing file
+-
+-    tb->reset = 0; // Init wire to initial value
+-
+-    int main_time = 0;
+-    while (!Verilated::gotFinish()) {
+-        if (main_time > 10) {
+-            tb->reset = 1;
+-        }
+-        if ((main_time % 10) == 1) {
+-            tb->clk = 1;
+-        }
+-        if ((main_time % 10) == 6) {
+-            tb->clk = 0;
+-        }
+-        tb->eval();
+-        tfp->dump(main_time); // Dump values into tracing file
+-        main_time++;
+-
+-        // Stop after a set time, since otherwise the current design would simulate forever
+-        if(main_time > 100){
+-            break;
+-        }
+-    }
++    Viob_cache* top = new Viob_cache; // Create UUT
++    //    VerilatedVcdC* tfp = new VerilatedVcdC; // Create tracing object
+ 
+-    tb->final();
+-    tfp->dump(main_time); // Dump last values
++    //tb->trace(tfp,99); // Trace 99 levels of hierarchy
++    //tfp->open("vcd.vcd"); // Open tracing file
+ 
+-    tfp->close(); // Close tracing file
++    // Per challenge email exchange
++    top->clk = 0;
++    top->reset = 1;
++    for(j=0;j<10;j++) {
++      top->clk = !top->clk;
++      top->eval();
++    }
++    
++    top->reset = 0;
++    for(j=0;j<10;j++) {
++      top->clk = !top->clk;
++      top->eval();
++    }
+ 
+-    std::cout << "Generated vcd file" << std::endl;
++    top->ready = 0;
++    for (j = 0; j < num_test_cmds; j++) {
++      i = 0;
++      int index = j * TEST_SIZE;
++      memcpy (&(top->addr), &buf[index], 2);
++      memcpy (&(top->wdata), &buf[index+2], 4);
++      memcpy (&(top->wstrb), &buf[index+6], 1);
++      memcpy (&(top->valid), &buf[index+7], 1);
+ 
+-    delete tb;
+-    delete tfp;
++      while(top->ready == 0 &&  ++i < 30) {
++	// Toggle a clock
++	top->clk = !top->clk;
++	top->eval();
++      }
+ 
+-    std::cout << "Iob_cache simulation end" << std::endl << std::endl;
++      top->valid = 0;
++      for(i = 0; i < 4; i++) {
++	top->clk = !top->clk;
++	top->eval();
++      }
++
++    }
++    top->final();
++    delete top;
+ 
+     return 0;
+ }
