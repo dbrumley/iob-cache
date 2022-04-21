@@ -1,6 +1,6 @@
 version: '1.16'
 baseimage: $MAYHEM_DOCKER_REGISTRY/dbrumley/iob-cache:latest
-project: dbrumley/iob-cache
+project: dbrumley/iob-cache-demo
 target: iob-cache
 tasks:
   - name: behavior_testing
