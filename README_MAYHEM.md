@@ -40,13 +40,15 @@ Steps to run:
      says the program will take an input file passed as `argv[1]`. 
   6. Click start run
   
-Mayhem will immediately start exploring the program. In our tests it took
-between 5-6 hours to create a test vector for the first challenge "corner case".
+Mayhem will immediately start exploring the program, and will generate test
+vectors that increase coverage. It will take around 160k CPU seconds to generate
+the first test vector that hits a challenge "corner case", or about 6 clock
+hours with an 8-core Mayhem worker node.  
 
 ## Building from scratch
 
-This section describes how to build the docker image from scratch, push it to
-a private Mayhem registry server, and run it under Mayhem.
+This section describes how to build the docker image from scratch, push it to a
+private Mayhem registry server, and run it under Mayhem.
 
 Pre-requisites:
   * You have a UNIX command line with git, docker, and the Mayhem CLI
