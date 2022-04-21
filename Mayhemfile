@@ -1,7 +1,11 @@
 version: '1.16'
-baseimage: $MAYHEM_DOCKER_REGISTRY/dbrumley/iob-cache:latest
-project: dbrumley/iob-cache-demo
+
+# Change 'dbrumley' to your username.  $MAYHEM_DOCKER_REGISTRY
+# automatically points to your Mayhem registry.
+baseimage: dbrumley/iob-cache:latest
+project: dbrumley/iob-cache
 target: iob-cache
+
 tasks:
   - name: behavior_testing
 cmds:
