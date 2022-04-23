@@ -1,17 +1,16 @@
 # Running iob-cache in Mayhem
 
-ForAllSecure's Mayhem can help companies achieve code coverage in Verilog.
-Verilog is used in chip design, and companies need to extensively test every
-line of code before burning to silicon. However, it is incredibly expensive to
-manually write tests. Mayhem can help automatically achieve code coverage,
-lowering the total cost to verify Verilog designs and speeding up time to
-production.
+ForAllSecure's Mayhem can help companies achieve code coverage for Verilog
+designs. Verilog is used in chip design, and companies need to extensively test
+every line of code before burning to silicon. However, it is incredibly
+expensive to manually write tests. Mayhem can help automatically achieve code
+coverage, lowering the total cost to verify Verilog designs and speeding up time
+to production.
 
-This repo is a fork that has a specific challenge created by a commercial
-company interested in seeing what Mayhem could do. We were given the Open Source
-[iob-cache](https://github.com/IObundle/iob-cache) written in Verilog with
-modifications to insert "corner cases". Mayhem's goal was to create test vectors
-for those corner cases.
+This repo demonstrates running Mayhem on `iob-cache`, a cache written in Verilog
+with a "challenge problem" created by [Micron](https://micron.com). Micron
+inserted new corner cases into `iob-cache`, and then asked whether Mayhem could
+discover and create test vectors for the new states. 
 
 This document is divided into three sections:
   1. A quick start, which will allow you to reproduce our results using an
@@ -41,9 +40,8 @@ Steps to run:
   6. Click start run
   
 Mayhem will immediately start exploring the program, and will generate test
-vectors that increase coverage. It will take around 160k CPU seconds to generate
-the first test vector that hits a challenge "corner case", or about 6 clock
-hours with an 8-core Mayhem worker node.  
+vectors that increase coverage. It took approximately 6 hours to generate the
+first test vector that hits a challenge corner case. 
 
 ## Building from scratch
 
